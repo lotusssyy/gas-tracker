@@ -1,21 +1,31 @@
 {
   "name": "Smash 110 Gas Tracker",
   "short_name": "Gas Tracker",
+  "id": "smash110-gas-tracker",
   "start_url": "./",
   "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
   "background_color": "#f4f7f6",
   "theme_color": "#0056b3",
-  "description": "Track gas expenses and full tanks for your Suzuki Smash 110.",
+  "description": "Track gas expenses for your Suzuki Smash 110 — price per liter, liters filled, and remaining fuel.",
   "icons": [
     {
       "src": "icon-192.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
       "src": "icon-512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-180.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }

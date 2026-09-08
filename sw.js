@@ -1,8 +1,11 @@
-const CACHE_NAME = 'smash-tracker-v2';
+const CACHE_NAME = 'smash-tracker-v4';
 const urlsToCache = [
   './',
   './index.html',
-  './manifest.json'
+  './manifest.json',
+  './icon-192.png',
+  './icon-512.png',
+  './icon-180.png'
 ];
 
 // Install the service worker and cache files

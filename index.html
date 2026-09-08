@@ -4,10 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Smash 110 Gas Tracker</title>
+    <meta name="description" content="Track gas expenses for your Suzuki Smash 110 — price per liter, liters filled, and remaining fuel.">
     
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0056b3">
-    <link rel="apple-touch-icon" href="icon-192.png">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Gas Tracker">
+    <link rel="apple-touch-icon" href="icon-180.png">
 
     <style>
         :root {
@@ -15,6 +20,10 @@
             --bg: #f4f7f6;
             --card-bg: #ffffff;
             --text: #333333;
+            --danger: #dc2626;
+        }
+        * {
+            box-sizing: border-box;
         }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -22,14 +31,18 @@
             color: var(--text);
             margin: 0;
             padding: 20px;
+            -webkit-tap-highlight-color: transparent;
         }
         .container {
-            max-width: 600px;
+            max-width: 720px;
             margin: 0 auto;
         }
         h1, h2, h3 {
             text-align: center;
             color: var(--primary);
+        }
+        h1 {
+            font-size: 1.6rem;
         }
         .card {
             background-color: var(--card-bg);
@@ -47,13 +60,18 @@
             font-weight: bold;
         }
         input {
-            padding: 10px;
+            padding: 12px 10px;
             border: 1px solid #ccc;
             border-radius: 5px;
             font-size: 16px;
+            width: 100%;
+        }
+        input:focus {
+            outline: 2px solid var(--primary);
+            border-color: var(--primary);
         }
         button {
-            padding: 10px;
+            padding: 12px 10px;
             background-color: var(--primary);
             color: white;
             border: none;
@@ -61,26 +79,36 @@
             font-size: 16px;
             cursor: pointer;
             margin-top: 10px;
+            min-height: 44px;
         }
         button:hover {
             background-color: #004494;
         }
         .stats {
             display: flex;
+            flex-wrap: wrap;
             justify-content: space-between;
             text-align: center;
             background-color: #e2e8f0;
             padding: 15px;
             border-radius: 8px;
             margin-top: 10px;
+            gap: 12px;
         }
         .stat-box {
-            flex: 1;
+            flex: 1 1 120px;
+            min-width: 100px;
+        }
+        .stat-box div:last-child {
+            font-size: 13px;
         }
         .stat-value {
             font-size: 24px;
             font-weight: bold;
             color: var(--primary);
+        }
+        .table-wrap {
+            overflow-x: auto;
         }
         table {
             width: 100%;
@@ -89,12 +117,83 @@
         }
         th, td {
             text-align: left;
-            padding: 10px;
+            padding: 12px 10px;
             border-bottom: 1px solid #ddd;
+            white-space: nowrap;
         }
         th {
             background-color: var(--primary);
             color: white;
+        }
+        tbody tr:hover {
+            background-color: #f0f4f8;
+        }
+        .delete-btn {
+            padding: 6px 14px;
+            background-color: var(--danger);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 13px;
+            cursor: pointer;
+            min-height: 40px;
+            margin-top: 0;
+        }
+        .delete-btn:hover {
+            background-color: #b91c1c;
+        }
+        @media (max-width: 640px) {
+            body {
+                padding: 10px;
+            }
+            h1 {
+                font-size: 1.35rem;
+            }
+            .card {
+                padding: 16px;
+                margin-bottom: 14px;
+            }
+            .stat-value {
+                font-size: 20px;
+            }
+            .stat-box div:last-child {
+                font-size: 12px;
+            }
+            table, thead, tbody, tr, td {
+                display: block;
+            }
+            thead {
+                display: none;
+            }
+            tbody {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+            }
+            tr {
+                background: var(--card-bg);
+                border: 1px solid #ddd;
+                border-radius: 8px;
+                overflow: hidden;
+            }
+            td {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                white-space: normal;
+                border-bottom: 1px solid #eee;
+                padding: 10px 14px;
+            }
+            td:last-child {
+                border-bottom: none;
+                justify-content: flex-end;
+            }
+            td::before {
+                content: attr(data-label);
+                font-weight: bold;
+                color: var(--primary);
+                margin-right: 12px;
+            }
         }
     </style>
 </head>
@@ -147,20 +246,22 @@
 
     <div class="card">
         <h2>Fuel History</h2>
-        <table id="historyTable">
-            <thead>
-                <tr>
-                    <th>Date</th>
-                    <th>Liters</th>
-                    <th>Gas Left</th>
-                    <th>Price/L</th>
-                    <th>Cost</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                </tbody>
-        </table>
+        <div class="table-wrap">
+            <table id="historyTable">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Liters</th>
+                        <th>Gas Left</th>
+                        <th>Price/L</th>
+                        <th>Cost</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    </tbody>
+            </table>
+        </div>
     </div>
 </div>
 
@@ -230,12 +331,12 @@
             totalCost += record.cost;
             const row = document.createElement('tr');
             row.innerHTML = `
-                <td>${record.date}</td>
-                <td>${record.liters.toFixed(2)} L</td>
-                <td>${gasLeftFor(record).toFixed(2)} L</td>
-                <td>₱${(record.pricePerLiter || record.cost / record.liters).toFixed(2)}/L</td>
-                <td>₱${record.cost.toFixed(2)}</td>
-                <td><button onclick="deleteRecord(${record.id})" style="padding: 5px; background: red; margin-top: 0; font-size: 12px;">Delete</button></td>
+                <td data-label="Date">${record.date}</td>
+                <td data-label="Liters">${record.liters.toFixed(2)} L</td>
+                <td data-label="Gas Left">${gasLeftFor(record).toFixed(2)} L</td>
+                <td data-label="Price/L">₱${(record.pricePerLiter || record.cost / record.liters).toFixed(2)}/L</td>
+                <td data-label="Cost">₱${record.cost.toFixed(2)}</td>
+                <td data-label=""><button class="delete-btn" onclick="deleteRecord(${record.id})">Delete</button></td>
             `;
             historyTableBody.appendChild(row);
         });
