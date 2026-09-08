@@ -1,6 +1,6 @@
 {
-  "name": "Smash 110 Gas Tracker",
-  "short_name": "Gas Tracker",
+  "name": "GAS TRACKER",
+  "short_name": "GAS TRACKER",
   "id": "smash110-gas-tracker",
   "start_url": "./",
   "display": "standalone",

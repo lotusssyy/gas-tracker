@@ -1,4 +1,4 @@
-const CACHE_NAME = 'smash-tracker-v5';
+const CACHE_NAME = 'smash-tracker-v6';
 const urlsToCache = [
   './',
   './index.html',
