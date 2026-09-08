@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smash 110 Gas Tracker</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0056b3">
+    <link rel="apple-touch-icon" href="icon-192.png">
+
+    <style>
+        :root {
+            --primary: #0056b3;
+            --bg: #f4f7f6;
+            --card-bg: #ffffff;
+            --text: #333333;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        h1, h2, h3 {
+            text-align: center;
+            color: var(--primary);
+        }
+        .card {
+            background-color: var(--card-bg);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        label {
+            font-weight: bold;
+        }
+        input {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        button {
+            padding: 10px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #004494;
+        }
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            text-align: center;
+            background-color: #e2e8f0;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+        .stat-box {
+            flex: 1;
+        }
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--primary);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        th, td {
+            text-align: left;
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: var(--primary);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>🏍️ Smash 110 Gas Tracker</h1>
+    <p style="text-align: center;">Full Tank Capacity: <strong>3.7 Liters</strong></p>
+
+    <div class="card">
+        <h2>Add Fuel Expense</h2>
+        <form id="gasForm">
+            <label for="date">Date:</label>
+            <input type="date" id="date" required>
+
+            <label for="pricePerLiter">Price per Liter (PHP):</label>
+            <input type="number" id="pricePerLiter" step="0.01" placeholder="e.g., 65" required>
+
+            <label for="cost">Total Cost (PHP):</label>
+            <input type="number" id="cost" step="0.01" placeholder="e.g., 150" required>
+
+            <label>Liters Filled:</label>
+            <div id="calculatedLiters" style="padding: 10px; background: #e2e8f0; border-radius: 5px; font-size: 18px; font-weight: bold; color: var(--primary);">0.00 L</div>
+
+            <button type="submit">Save Record</button>
+        </form>
+    </div>
+
+    <div class="card">
+        <h2>Overall Summary</h2>
+        <div class="stats">
+            <div class="stat-box">
+                <div class="stat-value" id="totalLiters">0.0</div>
+                <div>Total Liters</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value" id="totalCost">₱0</div>
+                <div>Total Spent</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value" id="tankEquivalent">0</div>
+                <div>Full Tanks (3.7L)</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value" id="lastGasLeft">--</div>
+                <div>Gas Left (Last Fill)</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Fuel History</h2>
+        <table id="historyTable">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Liters</th>
+                    <th>Gas Left</th>
+                    <th>Price/L</th>
+                    <th>Cost</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    const FULL_TANK_CAPACITY = 3.7;
+    let records = JSON.parse(localStorage.getItem('smash110_gas_records')) || [];
+
+    document.getElementById('date').valueAsDate = new Date();
+    const gasForm = document.getElementById('gasForm');
+    const historyTableBody = document.querySelector('#historyTable tbody');
+    const pricePerLiterInput = document.getElementById('pricePerLiter');
+    const costInput = document.getElementById('cost');
+    const calculatedLitersDisplay = document.getElementById('calculatedLiters');
+
+    function updateCalculatedLiters() {
+        const price = parseFloat(pricePerLiterInput.value);
+        const cost = parseFloat(costInput.value);
+        if (price > 0 && cost > 0) {
+            calculatedLitersDisplay.innerText = (cost / price).toFixed(2) + ' L';
+        } else {
+            calculatedLitersDisplay.innerText = '0.00 L';
+        }
+    }
+
+    pricePerLiterInput.addEventListener('input', updateCalculatedLiters);
+    costInput.addEventListener('input', updateCalculatedLiters);
+
+    gasForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const date = document.getElementById('date').value;
+        const pricePerLiter = parseFloat(pricePerLiterInput.value);
+        const cost = parseFloat(costInput.value);
+        const liters = Math.round((cost / pricePerLiter) * 100) / 100;
+
+        const newRecord = { id: Date.now(), date, liters, cost, pricePerLiter };
+        records.push(newRecord);
+        records.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+        saveData();
+        updateUI();
+        gasForm.reset();
+        document.getElementById('date').valueAsDate = new Date();
+        calculatedLitersDisplay.innerText = '0.00 L';
+    });
+
+    function deleteRecord(id) {
+        records = records.filter(record => record.id !== id);
+        saveData();
+        updateUI();
+    }
+
+    function saveData() {
+        localStorage.setItem('smash110_gas_records', JSON.stringify(records));
+    }
+
+    function gasLeftFor(record) {
+        return Math.min(Math.max(FULL_TANK_CAPACITY - record.liters, 0), FULL_TANK_CAPACITY);
+    }
+
+    function updateUI() {
+        historyTableBody.innerHTML = '';
+        let totalLiters = 0;
+        let totalCost = 0;
+
+        records.forEach(record => {
+            totalLiters += record.liters;
+            totalCost += record.cost;
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${record.date}</td>
+                <td>${record.liters.toFixed(2)} L</td>
+                <td>${gasLeftFor(record).toFixed(2)} L</td>
+                <td>₱${(record.pricePerLiter || record.cost / record.liters).toFixed(2)}/L</td>
+                <td>₱${record.cost.toFixed(2)}</td>
+                <td><button onclick="deleteRecord(${record.id})" style="padding: 5px; background: red; margin-top: 0; font-size: 12px;">Delete</button></td>
+            `;
+            historyTableBody.appendChild(row);
+        });
+
+        document.getElementById('totalLiters').innerText = totalLiters.toFixed(2);
+        document.getElementById('totalCost').innerText = `₱${totalCost.toFixed(2)}`;
+        document.getElementById('tankEquivalent').innerText = (totalLiters / FULL_TANK_CAPACITY).toFixed(1) + 'x';
+        document.getElementById('lastGasLeft').innerText = records.length > 0 ? gasLeftFor(records[0]).toFixed(2) + ' L' : '--';
+    }
+
+    updateUI();
+
+    // --- PWA Service Worker Registration ---
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('sw.js')
+                .then(registration => {
+                    console.log('ServiceWorker registered successfully.');
+                })
+                .catch(error => {
+                    console.log('ServiceWorker registration failed:', error);
+                });
+        });
+    }
+</script>
+</body>
+</html>
