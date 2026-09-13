@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GAS TRACKER</title>
-    <meta name="description" content="Track gas expenses for your Suzuki Smash 110 — price per liter, liters filled, and remaining fuel.">
+    <meta name="description" content="Track gas expenses for your Suzuki Smash 110 — price per liter and liters filled.">
     
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0056b3">
@@ -251,11 +251,7 @@
                 <div class="stat-value" id="tankEquivalent">0</div>
                 <div>Full Tanks (3.7L)</div>
             </div>
-            <div class="stat-box">
-                <div class="stat-value" id="lastGasLeft">--</div>
-                <div>Gas Left (Last Fill)</div>
             </div>
-        </div>
     </div>
 
     <div class="card">
@@ -266,7 +262,6 @@
                     <tr>
                         <th>Date</th>
                         <th>Liters</th>
-                        <th>Gas Left</th>
                         <th>Price/L</th>
                         <th>Cost</th>
                         <th>Action</th>
@@ -331,10 +326,6 @@
         localStorage.setItem('smash110_gas_records', JSON.stringify(records));
     }
 
-    function gasLeftFor(record) {
-        return Math.min(Math.max(FULL_TANK_CAPACITY - record.liters, 0), FULL_TANK_CAPACITY);
-    }
-
     function updateUI() {
         historyTableBody.innerHTML = '';
         let totalLiters = 0;
@@ -347,7 +338,6 @@
             row.innerHTML = `
                 <td data-label="Date">${record.date}</td>
                 <td data-label="Liters">${record.liters.toFixed(2)} L</td>
-                <td data-label="Gas Left">${gasLeftFor(record).toFixed(2)} L</td>
                 <td data-label="Price/L">₱${(record.pricePerLiter || record.cost / record.liters).toFixed(2)}/L</td>
                 <td data-label="Cost">₱${record.cost.toFixed(2)}</td>
                 <td data-label=""><button class="delete-btn" onclick="deleteRecord(${record.id})">Delete</button></td>
@@ -358,7 +348,6 @@
         document.getElementById('totalLiters').innerText = totalLiters.toFixed(2);
         document.getElementById('totalCost').innerText = `₱${totalCost.toFixed(2)}`;
         document.getElementById('tankEquivalent').innerText = (totalLiters / FULL_TANK_CAPACITY).toFixed(1) + 'x';
-        document.getElementById('lastGasLeft').innerText = records.length > 0 ? gasLeftFor(records[0]).toFixed(2) + ' L' : '--';
     }
 
     updateUI();
